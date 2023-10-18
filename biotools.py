@@ -1,25 +1,34 @@
 import sys
-import modules.dna_rna_tools as dr
-import modules.protein_tool as p
-import modules.fastqc_filter as f
+import os
 from typing import Dict, List, Union
 
+import modules.dna_rna_tools as dna_rna
+import modules.protein_tool as protein
+import modules.fastqc_filter as fasta
 
-def fastqc_filter(seqs: dict, length_bounds: int = (0, 2**32), quality_threshold: int = 0, gc_bounds: int = (0,100)) -> dict:
-    result = dict()
-    filter_set = set(f.quality_filter(seqs, quality_threshold))&set(f.gc_filter(seqs, gc_bounds))&set(f.quality_filter(seqs, quality_threshold))&set(f.length_filter(seqs, length_bounds))
-    for name, (sequence, quality) in seqs.items():
+
+
+def fastqc_filter(input_path: str, output_filename: None = None, 
+                  length_bounds: int = (0, 2**32), quality_threshold: int = 0, 
+                  gc_bounds: int = (0,100)) -> None:
+    result_filter = dict()
+    seqs = fasta.convert_fasta_to_dic(input_path)
+    filter_set = set(set(fasta.gc_filter(seqs, gc_bounds))&set(fasta.quality_filter(seqs, quality_threshold))&set(fasta.length_filter(seqs, length_bounds)))
+    for name, (sequence, comment, quality) in seqs.items():
         if name in filter_set:
-            result[name] = (sequence, quality)
-    return result
+            result_filter[name] = (sequence, comment, quality)
+    fasta.convert_dic_to_fasta(input_path, result_filter, output_filename)
 
 
 def protein_tool(*args: str) -> Union[str, List[Union[Dict[str, int], str]]]:
     *seqs, operation = args
-    operations = {'one letter': p.change_abbreviation, 'RNA': p.to_rna, 'DNA': p.to_dna, 'charge': p.define_charge, 'polarity': p.define_polarity}
+    operations = {
+                   'one letter': protein.change_abbreviation, 'RNA': protein.to_rna, 'DNA': protein.to_dna, 
+                   'charge': protein.define_charge, 'polarity': protein.define_polarity
+                 }
     output = []
     for seq in seqs:
-        answer = p.is_correct_seq(seq.upper())
+        answer = protein.is_correct_seq(seq.upper())
         if answer:
             function_output = operations[operation](seq.upper())
             output.append(function_output)
@@ -36,11 +45,11 @@ def dna_rna_tools(*args: str) -> Union[list, str]:
     *seqs, operation = args
     output = []
     operations = {
-                'transcribe': dr.seq_transcribe, 'reverse': dr.seq_reverse, 'complement': dr.seq_complement, 
-                'reverse_complement': dr.seq_reverse_complement
+                'transcribe': dna_rna.seq_transcribe, 'reverse': dna_rna.seq_reverse, 'complement': dna_rna.seq_complement, 
+                'reverse_complement': dna_rna.seq_reverse_complement
                 }
     for seq in seqs:
-        answer = dr.is_dna_or_rna(seq)
+        answer = dna_rna.is_dna_or_rna(seq)
         if answer:
             new_seq = operations[operation](seq)
             output.append(new_seq)

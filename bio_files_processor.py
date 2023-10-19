@@ -1,3 +1,5 @@
+import os
+
 def convert_multiline_fasta_to_oneline(input_fasta: str, output_fasta: str = None) -> None:
     list_of_seqlines = []
     out_dir = 'files_processor_results'

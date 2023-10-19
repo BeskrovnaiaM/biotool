@@ -5,14 +5,18 @@ Bioinformatics tool for processing DNA, protein and FASTQ sequences. This utilit
 1) dna_rna_tools - for processing DNA and RNA sequences
 2) protein_tool - for processing protein sequences
 3) fastqc_filter - for filtering sequences from FASTQ files
+4) convert_multiline_fasta_to_oneline - convert strings of FASTA in one line
 
 ## Table of Contents
 
 - [Installation](#installation)
 - [Functions](#functions)
-  - [protein_tool](#protein_tool)
-  - [dna_rna_tools](#dna_rna_tools)
-  - [fastqc_filter](#fastqc_filter)
+  - [Biotools.py](#biotools)
+    - [protein_tool](#protein_tool)
+    - [dna_rna_tools](#dna_rna_tools)
+    - [fastqc_filter](#fastqc_filter)
+  - [Bio_files_processor.py](#bio_files_processor)
+    - [Convert_multiline_fasta_to_oneline](#convert_multiline_fasta_to_oneline)
 
 ## Installation
 
@@ -22,8 +26,10 @@ You can clone this repository or download the source code.
 
 Python3
 
-## Functions
-Biotools.py contains three main functions for processing different types of data. The modules folder contains modules containing functions for processing requests for each of the main functions. If you want to call specific functions from these modules (why not?), you can use these functions, adding module's attributes to it (f for fastqc_filter, p for protein_tool, dr for dna_rna_tools), for example, `f.gc_filter()`,`p.to_dna()`, `dr.seq_reverse()`. Name's of function are given in subtitles for this purpose. 
+# Functions
+There are two tools for working with sequences or files: biotools.py, bio_files_processor.py.
+## Biotools
+Biotools.py contains three main functions for processing different types of data. The modules folder contains modules containing functions for processing requests for each of the main functions. If you want to call specific functions from these modules (why not?), you can use these functions, adding module's attributes to it (f for fastqc_filter, p for protein_tool, dr for dna_rna_tools), for example, `fasta.gc_filter()`,`protein.to_dna()`, `dna_rna.seq_reverse()`. Name's of function are given in subtitles for this purpose. 
 ### protein_tool
 The program can process one or more amino acid sequences written in a one-letter format and also does not take into account the size of the input and output letters. Tool can work with amino acids which are mentioned in table below.
 | One letter amino acid         | Three letter amino acid     |
@@ -221,70 +227,50 @@ Something wrong with sequence aut
 ```
 ### fastqc_filter
 
-The function can take a dictionary from sequences to the input and filter them in terms of the quality of reads, length and GC content. You can set the necessary value for the filter, if this parameter is not indicated, then the filter will work on default values:
+The function can take a FASTQ file to the input and filter them in terms of the quality of reads, length and GC content. You can set the necessary value for the filter, if this parameter is not indicated, then the filter will work on default values:
 1) `gc_bounds` = (0,100) 
 2) `quality_threshold` = 0
 3) `length_bounds` = (0, 2**32)
 
 Arguments:
 
-- dict of FASTQ. All examples of functions working will be proceed with EXAMPLE_FASTQC.
-##### Example:
-```python
-EXAMPLE_FASTQ = {
-    # 'name' : ('sequence', 'quality')
-    '@SRX079804:1:SRR292678:1:1101:21885:21885': ('ACAGCAACATAAACATGATGGGATGGCGTAAGCCCCCGAGATATCAGTTTACCCAGGATAAGAGATTAAATTATGAGCAACATTATTAA', 'FGGGFGGGFGGGFGDFGCEBB@CCDFDDFFFFBFFGFGEFDFFFF;D@DD>C@DDGGGDFGDGG?GFGFEGFGGEF@FDGGGFGFBGGD'),
-    '@SRX079804:1:SRR292678:1:1101:24563:24563': ('ATTAGCGAGGAGGAGTGCTGAGAAGATGTCGCCTACGCCGTTGAAATTCCCTTCAATCAGGGGGTACTGGAGGATACGAGTTTGTGTG', 'BFFFFFFFB@B@A<@D>BDDACDDDEBEDEFFFBFFFEFFDFFF=CC@DDFD8FFFFFFF8/+.2,@7<<:?B/:<><-><@.A*C>D'),
-    '@SRX079804:1:SRR292678:1:1101:30161:30161': ('GAACGACAGCAGCTCCTGCATAACCGCGTCCTTCTTCTTTAGCGTTGTGCAAAGCATGTTTTGTATTACGGGCATCTCGAGCGAATC', 'DFFFEGDGGGGFGGEDCCDCEFFFFCCCCCB>CEBFGFBGGG?DE=:6@=>A<A>D?D8DCEE:>EEABE5D@5:DDCA;EEE-DCD'),
-    '@SRX079804:1:SRR292678:1:1101:47176:47176': ('TGAAGCGTCGATAGAAGTTAGCAAACCCGCGGAACTTCCGTACATCAGACACATTCCGGGGGGTGGGCCAATCCATGATGCCTTTG', 'FF@FFBEEEEFFEFFD@EDEFFB=DFEEFFFE8FFE8EEDBFDFEEBE+E<C<C@FFFFF;;338<??D:@=DD:8DDDD@EE?EB'),
-    '@SRX079804:1:SRR292678:1:1101:149302:149302': ('TAGGGTTGTATTTGCAGATCCATGGCATGCCAAAAAGAACATCGTCCCGTCCAATATCTGCAACATACCAGTTGGTTGGTA', '@;CBA=:@;@DBDCDEEE/EEEEEEF@>FBEEB=EFA>EEBD=DAEEEEB9)99>B99BC)@,@<9CDD=C,5;B::?@;A'),
-    '@SRX079804:1:SRR292678:1:1101:170868:170868': ('CTGCCGAGACTGTTCTCAGACATGGAAAGCTCGATTCGCATACACTCGCTGAGTAAGAGAGTCACACCAAATCACAGATT', 'E;FFFEGFGIGGFBG;C6D<@C7CDGFEFGFHDFEHHHBBHHFDFEFBAEEEEDE@A2=DA:??C3<BCA7@DCDEG*EB'),
-    '@SRX079804:1:SRR292678:1:1101:171075:171075': ('CATTATAGTAATACGGAAGATGACTTGCTGTTATCATTACAGCTCCATCGCATGAATAATTCTCTAATATAGTTGTCAT', 'HGHHHHGFHHHHFHHEHHHHFGEHFGFGGGHHEEGHHEEHBHHFGDDECEGGGEFGF<FGGIIGEBGDFFFGFFGGFGF'),
-    '@SRX079804:1:SRR292678:1:1101:175500:175500': ('GACGCCGTGGCTGCACTATTTGAGGCACCTGTCCTCGAAGGGAAGTTCATCTCGACGCGTGTCACTATGACATGAATG', 'GGGGGFFCFEEEFFDGFBGGGA5DG@5DDCBDDE=GFADDFF5BE49<<<BDD?CE<A<8:59;@C.C9CECBAC=DE'),
-    '@SRX079804:1:SRR292678:1:1101:190136:190136': ('GAACCTTCTTTAATTTATCTAGAGCCCAAATTTTAGTCAATCTATCAACTAAAATACCTACTGCTACTACAAGTATT', 'DACD@BEECEDE.BEDDDDD,>:@>EEBEEHEFEHHFFHH?FGBGFBBD77B;;C?FFFFGGFED.BBABBG@DBBE'),
-    '@SRX079804:1:SRR292678:1:1101:190845:190845': ('CCTCAGCGTGGATTGCCGCTCATGCAGGAGCAGATAATCCCTTCGCCATCCCATTAAGCGCCGTTGTCGGTATTCC', 'FF@FFCFEECEBEC@@BBBBDFBBFFDFFEFFEB8FFFFFFFFEFCEB/>BBA@AFFFEEEEECE;ACD@DBBEEE'),
-    '@SRX079804:1:SRR292678:1:1101:198993:198993': ('AGTTATTTATGCATCATTCTCATGTATGAGCCAACAAGATAGTACAAGTTTTATTGCTATGAGTTCAGTACAACA', '<<<=;@B??@<>@><48876EADEG6B<A@*;398@.=BB<7:>.BB@.?+98204<:<>@?A=@EFEFFFEEFB'),
-    '@SRX079804:1:SRR292678:1:1101:204480:204480': ('AGTGAGACACCCCTGAACATTCCTAGTAAGACATCTTTGAATATTACTAGTTAGCCACACTTTAAAATGACCCG', '<98;<@@@:@CD@BCCDD=DBBCEBBAAA@9???@BCDBCGF=GEGDFGDBEEEEEFFFF=EDEE=DCD@@BBC')
-    }
-```
+- Path to FASTQ file as input_path and output name of file as output_filename. Deafault output name of file is the name input file. 
 Returns:
-- dict of sequences
+
+- FASTQ file. Results will be saved in directory `fastq_filtrator_results`. It will be created automatically.
 ##### Example with default values
 ```python
-fastqc_filter(EXAMPLE_FASTQ) #return all seq from EXAMPLE_FASTQ
+fastqc_filter(input_path='f/fastq.txt') #return all seq from file with name 'fastq.txt' in output directory
 ```
 ##### Example with custom quality_filter
 ```python
-fastqc_filter(EXAMPLE_FASTQ, quality_threshold=(34))
-{'@SRX079804:1:SRR292678:1:1101:21885:21885': ('ACAGCAACATAAACATGATGGGATGGCGTAAGCCCCCGAGATATCAGTTTACCCAGGATAAGAGATTAAATTATGAGCAACATTATTAA',
-  'FGGGFGGGFGGGFGDFGCEBB@CCDFDDFFFFBFFGFGEFDFFFF;D@DD>C@DDGGGDFGDGG?GFGFEGFGGEF@FDGGGFGFBGGD'),
- '@SRX079804:1:SRR292678:1:1101:171075:171075': ('CATTATAGTAATACGGAAGATGACTTGCTGTTATCATTACAGCTCCATCGCATGAATAATTCTCTAATATAGTTGTCAT',
-  'HGHHHHGFHHHHFHHEHHHHFGEHFGFGGGHHEEGHHEEHBHHFGDDECEGGGEFGF<FGGIIGEBGDFFFGFFGGFGF'),
- '@SRX079804:1:SRR292678:1:1101:190845:190845': ('CCTCAGCGTGGATTGCCGCTCATGCAGGAGCAGATAATCCCTTCGCCATCCCATTAAGCGCCGTTGTCGGTATTCC',
-  'FF@FFCFEECEBEC@@BBBBDFBBFFDFFEFFEB8FFFFFFFFEFCEB/>BBA@AFFFEEEEECE;ACD@DBBEEE')}
+fastqc_filter(input_path='f/fastq.txt', quality_threshold=(34))
 ```
 ##### Example with custom length_filter
 ```python
-fastqc_filter(EXAMPLE_FASTQ, length_bounds=(0,77))
-{'@SRX079804:1:SRR292678:1:1101:190136:190136': ('GAACCTTCTTTAATTTATCTAGAGCCCAAATTTTAGTCAATCTATCAACTAAAATACCTACTGCTACTACAAGTATT',
-  'DACD@BEECEDE.BEDDDDD,>:@>EEBEEHEFEHHFFHH?FGBGFBBD77B;;C?FFFFGGFED.BBABBG@DBBE'),
- '@SRX079804:1:SRR292678:1:1101:190845:190845': ('CCTCAGCGTGGATTGCCGCTCATGCAGGAGCAGATAATCCCTTCGCCATCCCATTAAGCGCCGTTGTCGGTATTCC',
-  'FF@FFCFEECEBEC@@BBBBDFBBFFDFFEFFEB8FFFFFFFFEFCEB/>BBA@AFFFEEEEECE;ACD@DBBEEE'),
- '@SRX079804:1:SRR292678:1:1101:198993:198993': ('AGTTATTTATGCATCATTCTCATGTATGAGCCAACAAGATAGTACAAGTTTTATTGCTATGAGTTCAGTACAACA',
-  '<<<=;@B??@<>@><48876EADEG6B<A@*;398@.=BB<7:>.BB@.?+98204<:<>@?A=@EFEFFFEEFB'),
- '@SRX079804:1:SRR292678:1:1101:204480:204480': ('AGTGAGACACCCCTGAACATTCCTAGTAAGACATCTTTGAATATTACTAGTTAGCCACACTTTAAAATGACCCG',
-  '<98;<@@@:@CD@BCCDD=DBBCEBBAAA@9???@BCDBCGF=GEGDFGDBEEEEEFFFF=EDEE=DCD@@BBC')}
+fastqc_filter(input_path='f/fastq.txt', length_bounds=(0,77))
 ```
 
 ##### Example with custom gc_filter
 ```python
-fastqc_filter(EXAMPLE_FASTQ, gc_bounds=(0,30))
-{'@SRX079804:1:SRR292678:1:1101:190136:190136': ('GAACCTTCTTTAATTTATCTAGAGCCCAAATTTTAGTCAATCTATCAACTAAAATACCTACTGCTACTACAAGTATT',
-  'DACD@BEECEDE.BEDDDDD,>:@>EEBEEHEFEHHFFHH?FGBGFBBD77B;;C?FFFFGGFED.BBABBG@DBBE')}
+fastqc_filter(input_path='f/fastq.txt', gc_bounds=(0,30))
 ```
-##### Example with custom gc_filter and length_filter
+##### Example with custom gc_filter and output_filename
 ```python
-fastqc_filter(EXAMPLE_FASTQ, gc_bounds=(0,35), length_bounds=(0,75))
-{'@SRX079804:1:SRR292678:1:1101:198993:198993': ('AGTTATTTATGCATCATTCTCATGTATGAGCCAACAAGATAGTACAAGTTTTATTGCTATGAGTTCAGTACAACA',
-  '<<<=;@B??@<>@><48876EADEG6B<A@*;398@.=BB<7:>.BB@.?+98204<:<>@?A=@EFEFFFEEFB')}
+fastqc_filter(EXAMPLE_FASTQ, gc_bounds=(0,35), output_filename = 'reads') #return file with name 'reads'
+```
+## Bio_files_processor
+This tool works with FASTA files to simplify analysis of sequence.
+### convert_multiline_fasta_to_oneline
+This function takes FASTA file as input and can connect all sequences (proteins, DNA, RNA...) into one line, removing lines with sequence names (>gene_name).
+Arguments:
+
+- Path to FASTA file as input_fasta and output name of file as output_fasta. Deafault output name of file is the name input file. 
+Returns:
+
+- FASTA file in one line. Results will be saved in directory `files_processor_results`. It will be created automatically.
+##### Example
+```python
+convert_multiline_fasta_to_oneline(input_fasta = 'f/fasta.txt', output_fasta = 'aa') #return file in directory `files_processor_results` with name `aa.fasta`.
+convert_multiline_fasta_to_oneline(input_fasta = 'f/fasta.txt') #return file in directory `files_processor_results` with name `fasta.txt`.
 ```
